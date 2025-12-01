@@ -613,7 +613,7 @@ export default function BasicTableOne({ search }: { search: string }) {
         <div className="flex flex-col max-h-[85vh] rounded-2xl bg-white dark:bg-gray-900">
 
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="text-xl font-semibold">Detail Insiden #{selected?.id}</h3>
+            <h3 className="text-xl font-semibold dark:text-gray-200">Detail Insiden #{selected?.id}</h3>
           </div>
 
           <div className="p-6 space-y-4 overflow-y-auto">
