@@ -10,212 +10,526 @@ import Badge from "../../ui/badge/Badge";
 import Label from "../../form/Label";
 import Input from "../../form/input/InputField";
 import TextArea from "../../form/input/TextArea";
+import Button from "../../ui/button/Button";
+import { Modal } from "../../ui/modal";
+import { useModal } from "../../../hooks/useModal";
 
+/* =========================================================
+   INCIDENT INTERFACE FINAL
+========================================================= */
 interface Incident {
   id: number;
-  tanggal: string;
   nama: string;
+  no_rm: string;
+  umur: number;
+  kelompok_usia: string;
   jenis_kelamin: "L" | "P";
-  usia: number;
-  jenis_insiden: "KTD" | "KTC" | "KNC" | "KPCS" | "Sentinel";
-  grading_risiko: "merah" | "kuning" | "hijau" | "biru";
+  penanggung_biaya: "umum" | "bpjs-mandiri" | "sktm";
+
+  tanggal_masuk: string;
+  tanggal_insiden: string;
+  waktu_insiden: string;
+
+  kronologi_insiden: string;
+
+  pelapor:
+  | "dokter"
+  | "perawat"
+  | "petugas-lain"
+  | "pasien"
+  | "keluarga"
+  | "pengunjung"
+  | "lain";
+
+  insiden_terjadi_pada: "pasien" | "lain";
+  jenis_pasien: "rawat-inap" | "ugd" | "rawat-jalan" | "lain";
+
+  tempat_insiden: string;
+  unit: string;
+
+  akibat:
+  | "kematian"
+  | "cedera-berat"
+  | "cedera-sedang"
+  | "cedera-ringan"
+  | "tidak-cedera";
+
+  tindakan_segera: string;
+
+  tindakan_oleh: {
+    dokter: boolean;
+    perawat: boolean;
+    petugas_lain: boolean;
+  };
+
+  pernah_terjadi: boolean;
+  kapan_terjadi?: string;
+  langkah_pencegahan?: string;
+
+  jenis_insiden_output: "KTD" | "KTC" | "KNC" | "KPCS" | "Sentinel";
+  skp_output: "SKP 1" | "SKP 2" | "SKP 3" | "SKP 4" | "SKP 5" | "SKP 6";
+  mdp_output:
+  | "MDP 1"
+  | "MDP 2"
+  | "MDP 3"
+  | "MDP 4"
+  | "MDP 5"
+  | "MDP 6"
+  | "MDP 7"
+  | "MDP 8"
+  | "MDP 9"
+  | "MDP 10"
+  | "MDP 11"
+  | "MDP 12"
+  | "MDP 13"
+  | "MDP 14"
+  | "MDP 15"
+  | "MDP 16"
+  | "MDP 17";
+
   keterangan: "Klasifikasi AI" | "Revisi Unit" | "Revisi Mutu";
-  kronologi?: string;
 }
 
+/* =========================================================
+   DUMMY DATA
+========================================================= */
 const initialIncidents: Incident[] = [
   {
     id: 1,
-    tanggal: "2025-10-10",
     nama: "Ny. Maria",
+    no_rm: "332211",
+    umur: 54,
+    kelompok_usia: "dewasa",
     jenis_kelamin: "P",
-    usia: 54,
-    jenis_insiden: "KTD",
-    grading_risiko: "kuning",
+    penanggung_biaya: "bpjs-mandiri",
+    tanggal_masuk: "2025-10-03",
+    tanggal_insiden: "2025-10-10",
+    waktu_insiden: "14:25",
+    kronologi_insiden: "Obat diberikan tidak sesuai dosis oleh petugas baru.",
+    pelapor: "perawat",
+    insiden_terjadi_pada: "pasien",
+    jenis_pasien: "rawat-inap",
+    tempat_insiden: "penyakit-dalam",
+    unit: "rawat-inap",
+    akibat: "cedera-ringan",
+    tindakan_segera: "Dilakukan penanganan awal.",
+    tindakan_oleh: { dokter: true, perawat: true, petugas_lain: false },
+    pernah_terjadi: false,
+    jenis_insiden_output: "KTD",
+    skp_output: "SKP 3",
+    mdp_output: "MDP 12",
     keterangan: "Klasifikasi AI",
   },
   {
     id: 2,
-    tanggal: "2025-09-26",
-    nama: "Tn. Budi",
+    nama: "Tn. Budi Santoso",
+    no_rm: "887744",
+    umur: 62,
+    kelompok_usia: "lansia",
     jenis_kelamin: "L",
-    usia: 62,
-    jenis_insiden: "KTC",
-    grading_risiko: "merah",
+    penanggung_biaya: "umum",
+    tanggal_masuk: "2025-09-20",
+    tanggal_insiden: "2025-09-21",
+    waktu_insiden: "09:10",
+    kronologi_insiden: "Pasien jatuh saat menuju kamar mandi.",
+    pelapor: "keluarga",
+    insiden_terjadi_pada: "pasien",
+    jenis_pasien: "rawat-inap",
+    tempat_insiden: "saraf",
+    unit: "rawat-inap",
+    akibat: "cedera-sedang",
+    tindakan_segera: "Dilakukan pemeriksaan fisik lengkap.",
+    tindakan_oleh: { dokter: true, perawat: true, petugas_lain: false },
+    pernah_terjadi: true,
+    kapan_terjadi: "2024-03-12",
+    langkah_pencegahan: "Dipasang pegangan tambahan di kamar mandi.",
+    jenis_insiden_output: "KNC",
+    skp_output: "SKP 6",
+    mdp_output: "MDP 4",
     keterangan: "Revisi Unit",
   },
   {
     id: 3,
-    tanggal: "2025-09-12",
-    nama: "Ny. Sinta",
+    nama: "Ny. Rini Wijaya",
+    no_rm: "551122",
+    umur: 38,
+    kelompok_usia: "dewasa",
     jenis_kelamin: "P",
-    usia: 41,
-    jenis_insiden: "KNC",
-    grading_risiko: "hijau",
+    penanggung_biaya: "sktm",
+    tanggal_masuk: "2025-08-15",
+    tanggal_insiden: "2025-08-16",
+    waktu_insiden: "11:40",
+    kronologi_insiden: "Salah pemberian infus karena label tidak jelas.",
+    pelapor: "dokter",
+    insiden_terjadi_pada: "pasien",
+    jenis_pasien: "ugd",
+    tempat_insiden: "obgyn",
+    unit: "ugd",
+    akibat: "cedera-ringan",
+    tindakan_segera: "Infus dihentikan dan diganti yang benar.",
+    tindakan_oleh: { dokter: true, perawat: true, petugas_lain: false },
+    pernah_terjadi: false,
+    jenis_insiden_output: "KTD",
+    skp_output: "SKP 2",
+    mdp_output: "MDP 8",
     keterangan: "Revisi Mutu",
   },
   {
     id: 4,
-    tanggal: "2025-08-30",
-    nama: "Tn. Andi",
+    nama: "Tn. Andi Prasetyo",
+    no_rm: "998877",
+    umur: 29,
+    kelompok_usia: "dewasa",
     jenis_kelamin: "L",
-    usia: 36,
-    jenis_insiden: "KPCS",
-    grading_risiko: "biru",
-    keterangan: "Revisi Unit",
+    penanggung_biaya: "bpjs-mandiri",
+    tanggal_masuk: "2025-07-21",
+    tanggal_insiden: "2025-07-22",
+    waktu_insiden: "20:15",
+    kronologi_insiden: "Keterlambatan pemberian obat rutin malam.",
+    pelapor: "perawat",
+    insiden_terjadi_pada: "pasien",
+    jenis_pasien: "rawat-inap",
+    tempat_insiden: "tht",
+    unit: "rawat-inap",
+    akibat: "tidak-cedera",
+    tindakan_segera: "Obat langsung diberikan.",
+    tindakan_oleh: { dokter: false, perawat: true, petugas_lain: false },
+    pernah_terjadi: false,
+    jenis_insiden_output: "KTC",
+    skp_output: "SKP 3",
+    mdp_output: "MDP 14",
+    keterangan: "Klasifikasi AI",
   },
   {
     id: 5,
-    tanggal: "2025-08-14",
-    nama: "Ny. Rika",
+    nama: "Ny. Sari Dewi",
+    no_rm: "123456",
+    umur: 47,
+    kelompok_usia: "dewasa",
     jenis_kelamin: "P",
-    usia: 59,
-    jenis_insiden: "Sentinel",
-    grading_risiko: "merah",
+    penanggung_biaya: "umum",
+    tanggal_masuk: "2025-06-01",
+    tanggal_insiden: "2025-06-02",
+    waktu_insiden: "16:50",
+    kronologi_insiden: "Kesalahan dokumentasi pada rekam medis.",
+    pelapor: "petugas-lain",
+    insiden_terjadi_pada: "lain",
+    jenis_pasien: "lain",
+    tempat_insiden: "administrasi",
+    unit: "rekam-medis",
+    akibat: "tidak-cedera",
+    tindakan_segera: "Dokumen diperbaiki dan diverifikasi ulang.",
+    tindakan_oleh: { dokter: false, perawat: false, petugas_lain: true },
+    pernah_terjadi: true,
+    kapan_terjadi: "2024-11-05",
+    langkah_pencegahan: "SOP dokumentasi diperbarui.",
+    jenis_insiden_output: "KPCS",
+    skp_output: "SKP 1",
+    mdp_output: "MDP 15",
+    keterangan: "Revisi Unit",
+  },
+  {
+    id: 6,
+    nama: "An. Lala Putri",
+    no_rm: "776655",
+    umur: 5,
+    kelompok_usia: "anak",
+    jenis_kelamin: "P",
+    penanggung_biaya: "bpjs-mandiri",
+    tanggal_masuk: "2025-05-11",
+    tanggal_insiden: "2025-05-12",
+    waktu_insiden: "08:20",
+    kronologi_insiden: "Pasien anak mengalami alergi obat.",
+    pelapor: "orangtua" as any,
+    insiden_terjadi_pada: "pasien",
+    jenis_pasien: "rawat-inap",
+    tempat_insiden: "anak",
+    unit: "rawat-inap",
+    akibat: "cedera-berat",
+    tindakan_segera: "Dilakukan penanganan alergi segera.",
+    tindakan_oleh: { dokter: true, perawat: true, petugas_lain: true },
+    pernah_terjadi: false,
+    jenis_insiden_output: "Sentinel",
+    skp_output: "SKP 3",
+    mdp_output: "MDP 6",
     keterangan: "Klasifikasi AI",
+  },
+  {
+    id: 7,
+    nama: "Tn. Yusuf Hidayat",
+    no_rm: "441199",
+    umur: 33,
+    kelompok_usia: "dewasa",
+    jenis_kelamin: "L",
+    penanggung_biaya: "umum",
+    tanggal_masuk: "2025-04-18",
+    tanggal_insiden: "2025-04-19",
+    waktu_insiden: "13:00",
+    kronologi_insiden: "Terjadi salah penempatan gelang identitas.",
+    pelapor: "petugas-lain",
+    insiden_terjadi_pada: "pasien",
+    jenis_pasien: "rawat-jalan",
+    tempat_insiden: "administrasi",
+    unit: "ugd",
+    akibat: "tidak-cedera",
+    tindakan_segera: "Gelang diganti dengan identitas yang benar.",
+    tindakan_oleh: { dokter: false, perawat: true, petugas_lain: true },
+    pernah_terjadi: false,
+    jenis_insiden_output: "KNC",
+    skp_output: "SKP 1",
+    mdp_output: "MDP 9",
+    keterangan: "Revisi Mutu",
+  },
+  {
+    id: 8,
+    nama: "Ny. Yuni Lestari",
+    no_rm: "998822",
+    umur: 52,
+    kelompok_usia: "dewasa",
+    jenis_kelamin: "P",
+    penanggung_biaya: "sktm",
+    tanggal_masuk: "2025-03-22",
+    tanggal_insiden: "2025-03-23",
+    waktu_insiden: "12:10",
+    kronologi_insiden: "Terjadi kesalahan komunikasi antar perawat.",
+    pelapor: "perawat",
+    insiden_terjadi_pada: "pasien",
+    jenis_pasien: "rawat-inap",
+    tempat_insiden: "paru",
+    unit: "rawat-inap",
+    akibat: "cedera-ringan",
+    tindakan_segera: "Dilakukan komunikasi ulang dan koreksi tindakan.",
+    tindakan_oleh: { dokter: false, perawat: true, petugas_lain: false },
+    pernah_terjadi: true,
+    kapan_terjadi: "2024-01-10",
+    langkah_pencegahan: "Briefing rutin per shift.",
+    jenis_insiden_output: "KTD",
+    skp_output: "SKP 2",
+    mdp_output: "MDP 2",
+    keterangan: "Revisi Unit",
+  },
+  {
+    id: 9,
+    nama: "Tn. Raka Pramudya",
+    no_rm: "778899",
+    umur: 45,
+    kelompok_usia: "dewasa",
+    jenis_kelamin: "L",
+    penanggung_biaya: "bpjs-mandiri",
+    tanggal_masuk: "2025-02-05",
+    tanggal_insiden: "2025-02-06",
+    waktu_insiden: "10:30",
+    kronologi_insiden: "Penggunaan alat yang tidak sesuai SOP.",
+    pelapor: "petugas-lain",
+    insiden_terjadi_pada: "lain",
+    jenis_pasien: "lain",
+    tempat_insiden: "bedah",
+    unit: "kamar-operasi",
+    akibat: "cedera-sedang",
+    tindakan_segera: "Operator lain mengambil alih tindakan.",
+    tindakan_oleh: { dokter: true, perawat: true, petugas_lain: true },
+    pernah_terjadi: false,
+    jenis_insiden_output: "Sentinel",
+    skp_output: "SKP 4",
+    mdp_output: "MDP 7",
+    keterangan: "Klasifikasi AI",
+  },
+  {
+    id: 10,
+    nama: "Ny. Amira Rahmadani",
+    no_rm: "332299",
+    umur: 60,
+    kelompok_usia: "lansia",
+    jenis_kelamin: "P",
+    penanggung_biaya: "umum",
+    tanggal_masuk: "2025-01-18",
+    tanggal_insiden: "2025-01-19",
+    waktu_insiden: "17:45",
+    kronologi_insiden: "Terjadi keterlambatan evaluasi hasil lab.",
+    pelapor: "dokter",
+    insiden_terjadi_pada: "pasien",
+    jenis_pasien: "rawat-inap",
+    tempat_insiden: "penyakit-dalam",
+    unit: "laboratorium",
+    akibat: "cedera-ringan",
+    tindakan_segera: "Evaluasi dilakukan segera setelah ditemukan.",
+    tindakan_oleh: { dokter: true, perawat: false, petugas_lain: true },
+    pernah_terjadi: false,
+    jenis_insiden_output: "KTC",
+    skp_output: "SKP 3",
+    mdp_output: "MDP 10",
+    keterangan: "Revisi Mutu",
   },
 ];
 
-// Badge color helper
-const getBadgeColor = (grading: string) => {
-  switch (grading.toLowerCase()) {
-    case "merah":
-      return "error";
-    case "kuning":
-      return "warning";
-    case "hijau":
-      return "success";
-    case "biru":
-      return "info";
-    default:
-      return "info";  // fallback aman
-  }
-};
 
-
-// Note color helper
+/* =========================================================
+   BADGE HELPER
+========================================================= */
 const getNoteColor = (ket: string) => {
   if (ket === "Klasifikasi AI") return "info";
   if (ket === "Revisi Unit") return "warning";
   if (ket === "Revisi Mutu") return "error";
-  return "info";  // fallback aman
+  return "info";
 };
 
-
-export default function BasicTableOne() {
+/* =========================================================
+   MAIN COMPONENT
+========================================================= */
+export default function BasicTableOne({ search }: { search: string }) {
   const [incidents, setIncidents] = useState<Incident[]>(initialIncidents);
 
-  // Detail (READ-ONLY)
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selected, setSelected] = useState<Incident | null>(null);
 
-  // Edit (layout sama dengan detail; hanya 2 field yang editable)
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [editTarget, setEditTarget] = useState<Incident | null>(null);
-  const [editForm, setEditForm] = useState<
-    Pick<Incident, "id" | "jenis_insiden" | "grading_risiko">
-  >({ id: 0, jenis_insiden: "KTD", grading_risiko: "kuning" });
+  const [editForm, setEditForm] = useState({
+    id: 0,
+    jenis_insiden_output: "KTD" as Incident["jenis_insiden_output"],
+    skp_output: "SKP 1" as Incident["skp_output"],
+    mdp_output: "MDP 1" as Incident["mdp_output"],
+  });
 
-  // open/close
+  const detailModal = useModal();
+  const editModal = useModal();
+
+  /* =============================
+     FILTERING (SEARCH)
+  ============================= */
+  const filteredIncidents = incidents.filter((row) => {
+    const s = search.toLowerCase();
+    return (
+      row.nama.toLowerCase().includes(s) ||
+      row.no_rm.toLowerCase().includes(s) ||
+      row.jenis_insiden_output.toLowerCase().includes(s) ||
+      row.skp_output.toLowerCase().includes(s) ||
+      row.mdp_output.toLowerCase().includes(s)
+    );
+  });
+
+  /* =============================
+     DOWNLOAD CSV LISTENER
+  ============================= */
+  useEffect(() => {
+    const handler = () => {
+      if (incidents.length === 0) return;
+
+      const header = Object.keys(incidents[0]).join(",");
+      const body = incidents.map((r) => Object.values(r).join(",")).join("\n");
+      const csv = "data:text/csv;charset=utf-8," + header + "\n" + body;
+
+      const link = document.createElement("a");
+      link.href = encodeURI(csv);
+      link.download = "data_insiden.csv";
+      link.click();
+    };
+
+    window.addEventListener("download-table-csv", handler);
+    return () =>
+      window.removeEventListener("download-table-csv", handler);
+  }, [incidents]);
+
+  /* =============================
+     OPEN DETAIL
+  ============================= */
   const openDetail = (row: Incident) => {
     setSelected(row);
-    setIsDetailOpen(true);
-  };
-  const closeDetail = () => {
-    setIsDetailOpen(false);
-    setSelected(null);
+    detailModal.openModal();
   };
 
+  /* =============================
+     OPEN EDIT
+  ============================= */
   const openEdit = (row: Incident) => {
-    setEditTarget(row); // untuk render field lain (read-only)
+    setSelected(row);
     setEditForm({
       id: row.id,
-      jenis_insiden: row.jenis_insiden,
-      grading_risiko: row.grading_risiko,
+      jenis_insiden_output: row.jenis_insiden_output,
+      skp_output: row.skp_output,
+      mdp_output: row.mdp_output,
     });
-    setIsEditOpen(true);
-  };
-  const closeEdit = () => {
-    setIsEditOpen(false);
-    setEditTarget(null);
+    editModal.openModal();
   };
 
-  // lock scroll + esc
-  useEffect(() => {
-    const anyOpen = isDetailOpen || isEditOpen;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        if (isEditOpen) closeEdit();
-        else if (isDetailOpen) closeDetail();
-      }
-    };
-    document.addEventListener("keydown", onKey);
-    if (anyOpen) {
-      const prev = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = prev;
-        document.removeEventListener("keydown", onKey);
-      };
-    }
-    return () => document.removeEventListener("keydown", onKey);
-  }, [isDetailOpen, isEditOpen]);
-
-  // edit handlers (2 field saja)
+  /* =============================
+     ON CHANGE EDIT
+  ============================= */
   const onChangeEdit = (
-    field: "jenis_insiden" | "grading_risiko",
-    value: Incident["jenis_insiden"] | Incident["grading_risiko"]
-  ) => setEditForm((p) => ({ ...p, [field]: value as any }));
+    field: "jenis_insiden_output" | "skp_output" | "mdp_output",
+    value: string
+  ) => {
+    setEditForm((prev) => ({
+      ...prev,
+      [field]:
+        field === "jenis_insiden_output"
+          ? (value as Incident["jenis_insiden_output"])
+          : field === "skp_output"
+            ? (value as Incident["skp_output"])
+            : (value as Incident["mdp_output"]),
+    }));
+  };
 
+  /* =============================
+     SUBMIT EDIT
+  ============================= */
   const onSubmitEdit = (e: React.FormEvent) => {
     e.preventDefault();
+
     setIncidents((prev) =>
       prev.map((it) =>
         it.id === editForm.id
           ? {
             ...it,
-            jenis_insiden: editForm.jenis_insiden,
-            grading_risiko: editForm.grading_risiko,
+            jenis_insiden_output: editForm.jenis_insiden_output,
+            skp_output: editForm.skp_output,
+            mdp_output: editForm.mdp_output,
           }
           : it
       )
     );
-    // sinkron dengan detail & editTarget bila sedang menampilkan item yang sama
+
     setSelected((s) =>
       s && s.id === editForm.id
-        ? { ...s, jenis_insiden: editForm.jenis_insiden, grading_risiko: editForm.grading_risiko }
+        ? {
+          ...s,
+          jenis_insiden_output: editForm.jenis_insiden_output,
+          skp_output: editForm.skp_output,
+          mdp_output: editForm.mdp_output,
+        }
         : s
     );
-    setEditTarget((t) =>
-      t && t.id === editForm.id
-        ? { ...t, jenis_insiden: editForm.jenis_insiden, grading_risiko: editForm.grading_risiko }
-        : t
-    );
-    closeEdit();
+
+    editModal.closeModal();
   };
 
+  /* =========================================================
+     RENDER
+  ========================================================= */
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:bg-gray-900 dark:border-gray-700">
       <div className="max-w-full overflow-x-auto">
         <Table>
-          {/* === Header === */}
-          <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+
+          {/* =============================
+              HEADER
+          ============================= */}
+          <TableHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
             <TableRow>
               {[
+                "No",
                 "Tanggal",
                 "Nama",
                 "Jenis Kelamin",
                 "Usia",
-                "Jenis Kejadian",
-                "Grading Risiko",
-                "Keterangan",
+                "Jenis",
+                "SKP",
+                "MDP",
+                "Ket",
                 "Aksi",
               ].map((head) => (
                 <TableCell
                   key={head}
                   isHeader
-                  className={`px-5 py-3 font-medium text-gray-500 ${head === "Aksi" ? "text-center" : "text-start"
-                    } text-theme-xs dark:text-gray-400`}
+                  className={`px-4 py-2 font-semibold text-gray-700 dark:text-gray-200 ${head === "Aksi" ? "text-center" : "text-start"
+                    }`}
                 >
                   {head}
                 </TableCell>
@@ -223,232 +537,338 @@ export default function BasicTableOne() {
             </TableRow>
           </TableHeader>
 
-          {/* === Body === */}
-          <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-            {incidents.map((row) => (
-              <TableRow key={row.id}>
-                {/* Tanggal */}
-                <TableCell className="px-5 py-3 text-gray-700 dark:text-gray-200">
-                  {new Date(row.tanggal).toLocaleDateString("id-ID", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  })}
+          {/* =============================
+              BODY
+          ============================= */}
+          <TableBody>
+
+            {filteredIncidents.map((row, index) => (
+              <TableRow key={row.id} className="text-sm">
+
+                <TableCell className="px-4 py-2 text-gray-700 dark:text-gray-200">
+                  {index + 1}
                 </TableCell>
 
-                {/* Nama */}
-                <TableCell className="text-gray-700 dark:text-gray-200">
+                <TableCell className="px-4 py-2 text-gray-700 dark:text-gray-200">
+                  {new Date(row.tanggal_insiden).toLocaleDateString("id-ID")}
+                </TableCell>
+
+                <TableCell className="px-4 py-2 text-gray-700 dark:text-gray-200">
                   {row.nama}
                 </TableCell>
 
-                {/* Jenis Kelamin */}
-                <TableCell className="text-gray-700 dark:text-gray-200">
-                  {row.jenis_kelamin === "L" ? "Laki-laki" : "Perempuan"}
+                <TableCell className="px-4 py-2 text-gray-700 dark:text-gray-200">
+                  {row.jenis_kelamin}
                 </TableCell>
 
-                {/* Usia */}
-                <TableCell className="text-gray-700 dark:text-gray-200">
-                  {row.usia} th
+                <TableCell className="px-4 py-2 text-gray-700 dark:text-gray-200">
+                  {row.umur}
                 </TableCell>
 
-                {/* Jenis Kejadian */}
-                <TableCell className="text-gray-700 dark:text-gray-200">
-                  {row.jenis_insiden}
+                <TableCell className="px-4 py-2 text-gray-700 dark:text-gray-200">
+                  {row.jenis_insiden_output}
                 </TableCell>
 
-                {/* Grading Risiko */}
-                <TableCell>
-                  <Badge size="sm" color={getBadgeColor(row.grading_risiko)}>
-                    {row.grading_risiko}
-                  </Badge>
+                <TableCell className="px-4 py-2 text-gray-700 dark:text-gray-200">
+                  {row.skp_output}
                 </TableCell>
 
-                {/* Keterangan */}
-                <TableCell>
+                <TableCell className="px-4 py-2 text-gray-700 dark:text-gray-200">
+                  {row.mdp_output}
+                </TableCell>
+
+                <TableCell className="px-4 py-2">
                   <Badge size="sm" color={getNoteColor(row.keterangan)}>
                     {row.keterangan}
                   </Badge>
                 </TableCell>
 
-                {/* Aksi */}
-                <TableCell className="text-center">
-                  <div className="flex items-center justify-center gap-2">
-                    <button
-                      onClick={() => openDetail(row)}
-                      className="inline-flex items-center rounded-md bg-brand-500 px-3 py-1 text-xs font-medium text-white hover:bg-brand-600 dark:bg-brand-600 dark:hover:bg-brand-500"
-                    >
+                <TableCell className="px-4 py-2 text-center">
+                  <div className="flex justify-center gap-2">
+                    <Button size="sm" onClick={() => openDetail(row)}>
                       Detail
-                    </button>
-                    <button
-                      onClick={() => openEdit(row)}
-                      className="inline-flex items-center rounded-md border border-brand-500 px-3 py-1 text-xs font-medium text-brand-500 hover:bg-brand-50 dark:border-brand-400 dark:text-brand-300 dark:hover:bg-white/10"
-                    >
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => openEdit(row)}>
                       Edit
-                    </button>
+                    </Button>
                   </div>
                 </TableCell>
+
               </TableRow>
             ))}
+
           </TableBody>
+
         </Table>
       </div>
-      {/* ===== MODAL DETAIL (READ-ONLY, versi sebelumnya) ===== */}
-      {isDetailOpen && selected && (
-        <div className="fixed inset-0 z-[9999] flex items-start justify-center p-4 sm:p-6" role="dialog" aria-modal="true">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={closeDetail} />
-          <div className="relative mt-20 w-full max-w-2xl rounded-2xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-slate-900">
-            <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-white/10">
-              <h3 className="text-base font-semibold text-gray-900 dark:text-white">Detail Insiden #{selected.id}</h3>
-              <button onClick={closeDetail} className="rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/10">✕</button>
-            </div>
 
-            <div className="px-6 py-5 space-y-4">
-              <div>
-                <Label>Nama</Label>
-                <Input type="text" value={selected.nama} disabled />
-              </div>
+      {/* =========================================================
+          MODAL DETAIL
+      ========================================================= */}
+      <Modal
+        isOpen={detailModal.isOpen}
+        onClose={detailModal.closeModal}
+        className="max-w-[750px] w-full m-4"
+      >
+        <div className="flex flex-col max-h-[85vh] rounded-2xl bg-white dark:bg-gray-900">
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Jenis Kelamin</Label>
-                  <Input type="text" value={selected.jenis_kelamin === "L" ? "Laki-laki" : "Perempuan"} disabled />
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-xl font-semibold">Detail Insiden #{selected?.id}</h3>
+          </div>
+
+          <div className="p-6 space-y-4 overflow-y-auto">
+
+            {selected && (
+              <>
+                {/* Input styling patch */}
+                <style>
+                  {`
+                  input[disabled], textarea[disabled] {
+                    color: black !important;
+                  }
+                  .dark input[disabled], .dark textarea[disabled] {
+                    color: white !important;
+                  }
+                `}
+                </style>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Nama</Label>
+                    <Input disabled value={selected.nama} />
+                  </div>
+                  <div>
+                    <Label>No RM</Label>
+                    <Input disabled value={selected.no_rm} />
+                  </div>
                 </div>
-                <div>
-                  <Label>Usia</Label>
-                  <Input type="text" value={`${selected.usia} tahun`} disabled />
-                </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label>Jenis Kelamin</Label>
+                    <Input
+                      disabled
+                      value={
+                        selected.jenis_kelamin === "L"
+                          ? "Laki-laki"
+                          : "Perempuan"
+                      }
+                    />
+                  </div>
+                  <div>
+                    <Label>Umur</Label>
+                    <Input disabled value={selected.umur} />
+                  </div>
+                  <div>
+                    <Label>Kelompok Usia</Label>
+                    <Input disabled value={selected.kelompok_usia} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label>Tanggal Masuk</Label>
+                    <Input disabled value={selected.tanggal_masuk} />
+                  </div>
+                  <div>
+                    <Label>Tanggal Insiden</Label>
+                    <Input disabled value={selected.tanggal_insiden} />
+                  </div>
+                  <div>
+                    <Label>Waktu Insiden</Label>
+                    <Input disabled value={selected.waktu_insiden} />
+                  </div>
+                </div>
+
                 <div>
-                  <Label>Tanggal Kejadian</Label>
-                  <Input
-                    type="text"
-                    value={new Date(selected.tanggal).toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" })}
+                  <Label>Kronologi</Label>
+                  <TextArea disabled rows={4} value={selected.kronologi_insiden} />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Pelapor</Label>
+                    <Input disabled value={selected.pelapor} />
+                  </div>
+                  <div>
+                    <Label>Insiden Terjadi Pada</Label>
+                    <Input disabled value={selected.insiden_terjadi_pada} />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Jenis Pasien</Label>
+                    <Input disabled value={selected.jenis_pasien} />
+                  </div>
+                  <div>
+                    <Label>Tempat Insiden</Label>
+                    <Input disabled value={selected.tempat_insiden} />
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Unit</Label>
+                  <Input disabled value={selected.unit} />
+                </div>
+
+                <div>
+                  <Label>Akibat</Label>
+                  <Input disabled value={selected.akibat} />
+                </div>
+
+                <div>
+                  <Label>Tindakan Segera</Label>
+                  <TextArea
                     disabled
+                    rows={4}
+                    value={selected.tindakan_segera}
                   />
                 </div>
+
                 <div>
-                  <Label>Jenis Kejadian</Label>
-                  <Input type="text" value={selected.jenis_insiden} disabled />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Grading Risiko</Label>
-                  <Input type="text" value={selected.grading_risiko.toUpperCase()} disabled />
-                </div>
-                <div>
-                  <Label>Keterangan</Label>
-                  <Input type="text" value={selected.keterangan} disabled />
-                </div>
-              </div>
-
-              <div>
-                <Label>Kronologi</Label>
-                <TextArea value={selected.kronologi ?? "Belum ada kronologi untuk insiden ini."} onChange={() => { }} disabled rows={4} />
-              </div>
-            </div>
-
-            <div className="flex justify-end border-t border-gray-100 px-6 py-4 dark:border-white/10">
-              <button onClick={closeDetail} className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-white/15 dark:bg-slate-900 dark:text-gray-200">Tutup</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ===== MODAL EDIT (layout & isi mirip DETAIL, tapi: tanpa Keterangan; hanya 2 field editable) ===== */}
-      {isEditOpen && editTarget && (
-        <div className="fixed inset-0 z-[10000] flex items-start justify-center p-4 sm:p-6" role="dialog" aria-modal="true">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={closeEdit} />
-          <div className="relative mt-20 w-full max-w-2xl rounded-2xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-slate-900">
-            <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4 dark:border-white/10">
-              <h3 className="text-base font-semibold text-gray-900 dark:text-white">Edit Insiden #{editTarget.id}</h3>
-              <button onClick={closeEdit} className="rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-white/10">✕</button>
-            </div>
-
-            {/* Sama layout seperti detail: semua read-only kecuali 2 field di bawah */}
-            <form onSubmit={onSubmitEdit} className="px-6 py-5 space-y-4">
-              <div>
-                <Label>Nama</Label>
-                <Input type="text" value={editTarget.nama} disabled />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Jenis Kelamin</Label>
-                  <Input type="text" value={editTarget.jenis_kelamin === "L" ? "Laki-laki" : "Perempuan"} disabled />
-                </div>
-                <div>
-                  <Label>Usia</Label>
-                  <Input type="text" value={`${editTarget.usia} tahun`} disabled />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Tanggal Kejadian</Label>
+                  <Label>Dilakukan Oleh</Label>
                   <Input
-                    type="text"
-                    value={new Date(editTarget.tanggal).toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" })}
                     disabled
+                    value={[
+                      selected.tindakan_oleh.dokter && "Dokter",
+                      selected.tindakan_oleh.perawat && "Perawat",
+                      selected.tindakan_oleh.petugas_lain && "Petugas Lain",
+                    ]
+                      .filter(Boolean)
+                      .join(", ")}
                   />
                 </div>
 
-                {/* EDITABLE #1 */}
-                <div>
-                  <Label>Jenis Kejadian</Label>
-                  <select
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-500 dark:border-white/15 dark:bg-slate-900"
-                    value={editForm.jenis_insiden}
-                    onChange={(e) => onChangeEdit("jenis_insiden", e.target.value as Incident["jenis_insiden"])}
-                  >
-                    <option value="KTD">KTD</option>
-                    <option value="KTC">KTC</option>
-                    <option value="KNC">KNC</option>
-                    <option value="KPCS">KPCS</option>
-                    <option value="Sentinel">Sentinel</option>
-                  </select>
+                {selected.pernah_terjadi && (
+                  <>
+                    <div>
+                      <Label>Kapan Terjadi</Label>
+                      <Input disabled value={selected.kapan_terjadi} />
+                    </div>
+                    <div>
+                      <Label>Langkah Pencegahan</Label>
+                      <TextArea
+                        disabled
+                        rows={3}
+                        value={selected.langkah_pencegahan}
+                      />
+                    </div>
+                  </>
+                )}
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label>Jenis Insiden</Label>
+                    <Input disabled value={selected.jenis_insiden_output} />
+                  </div>
+                  <div>
+                    <Label>SKP</Label>
+                    <Input disabled value={selected.skp_output} />
+                  </div>
+                  <div>
+                    <Label>MDP</Label>
+                    <Input disabled value={selected.mdp_output} />
+                  </div>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                {/* EDITABLE #2 */}
-                <div>
-                  <Label>Grading Risiko</Label>
-                  <select
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-brand-500 dark:border-white/15 dark:bg-slate-900"
-                    value={editForm.grading_risiko}
-                    onChange={(e) => onChangeEdit("grading_risiko", e.target.value as Incident["grading_risiko"])}
-                  >
-                    <option value="merah">Merah</option>
-                    <option value="kuning">Kuning</option>
-                    <option value="hijau">Hijau</option>
-                    <option value="biru">Biru</option>
-                  </select>
-                </div>
-
-                {/* DIHILANGKAN: Keterangan (tidak ditampilkan di modal edit) */}
-              </div>
-
-              <div>
-                <Label>Kronologi</Label>
-                <TextArea value={editTarget.kronologi ?? "Belum ada kronologi untuk insiden ini."} onChange={() => { }} disabled rows={4} />
-              </div>
-
-              <div className="flex justify-end gap-2 border-t border-gray-100 pt-4 dark:border-white/10">
-                <button type="button" onClick={closeEdit} className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-white/15 dark:bg-slate-900 dark:text-gray-200">
-                  Batal
-                </button>
-                <button type="submit" className="rounded-md bg-brand-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-600 dark:bg-brand-600 dark:hover:bg-brand-500">
-                  Simpan Perubahan
-                </button>
-              </div>
-            </form>
+              </>
+            )}
           </div>
+
+          <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+            <Button variant="outline" onClick={detailModal.closeModal}>
+              Tutup
+            </Button>
+          </div>
+
         </div>
-      )}
+      </Modal>
+
+      {/* =========================================================
+          MODAL EDIT
+      ========================================================= */}
+      <Modal
+        isOpen={editModal.isOpen}
+        onClose={editModal.closeModal}
+        className="max-w-[600px]"
+      >
+        <div className="p-6 lg:p-10 bg-white dark:bg-gray-900 rounded-2xl">
+          <h3 className="text-xl font-semibold mb-4 dark:text-gray-200">
+            Edit Klasifikasi Insiden
+          </h3>
+
+          <form onSubmit={onSubmitEdit} className="space-y-4">
+
+            {/* JENIS INSIDEN */}
+            <div>
+              <Label>Jenis Insiden</Label>
+              <select
+                className="w-full rounded-lg border px-3 py-2 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+                value={editForm.jenis_insiden_output}
+                onChange={(e) =>
+                  onChangeEdit("jenis_insiden_output", e.target.value)
+                }
+              >
+                <option value="KNC">KNC</option>
+                <option value="KTD">KTD</option>
+                <option value="KTC">KTC</option>
+                <option value="KPCS">KPCS</option>
+                <option value="Sentinel">Sentinel</option>
+              </select>
+            </div>
+
+            {/* SKP */}
+            <div>
+              <Label>SKP</Label>
+              <select
+                className="w-full rounded-lg border px-3 py-2 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+                value={editForm.skp_output}
+                onChange={(e) => onChangeEdit("skp_output", e.target.value)}
+              >
+                <option value="SKP 1">SKP 1</option>
+                <option value="SKP 2">SKP 2</option>
+                <option value="SKP 3">SKP 3</option>
+                <option value="SKP 4">SKP 4</option>
+                <option value="SKP 5">SKP 5</option>
+                <option value="SKP 6">SKP 6</option>
+              </select>
+            </div>
+
+            {/* MDP */}
+            <div>
+              <Label>MDP</Label>
+              <select
+                className="w-full rounded-lg border px-3 py-2 bg-white dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
+                value={editForm.mdp_output}
+                onChange={(e) => onChangeEdit("mdp_output", e.target.value)}
+              >
+                {Array.from({ length: 17 }).map((_, i) => (
+                  <option key={i} value={`MDP ${i + 1}`}>
+                    MDP {i + 1}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* ACTION BUTTONS */}
+            <div className="flex justify-end gap-3 pt-4">
+              <Button variant="outline" onClick={editModal.closeModal}>
+                Batal
+              </Button>
+
+              <button
+                type="submit"
+                className="inline-flex items-center rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
+              >
+                Simpan
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </Modal>
+
     </div>
   );
 }

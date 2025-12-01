@@ -173,12 +173,6 @@ export default function Klasifikasi() {
         <Label>Kronologi Insiden</Label>
         <TextArea rows={6} value={message} onChange={setMessage} placeholder="Ceritakan kronologi kejadian..." />
 
-        {/* <Label>Sasaran Keselamatan Pasien (SKP)</Label>
-        <Select options={skpList} placeholder="Pilih SKP" onChange={(v) => { }} />
-
-        <Label>Masalah Disiplin Profesi (MDP)</Label>
-        <Select options={mdpList} placeholder="Pilih MDP" onChange={(v) => { }} /> */}
-
         <Label>Tempat Insiden</Label>
         <Select options={tempatInsiden} placeholder="Pilih Tempat" onChange={(v) => { }} />
 
