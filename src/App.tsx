@@ -1,9 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
-
-// Halaman yang dipakai
-import Home from "./pages/Dashboard/Home";
+import Home from "./pages/DashboardUnit/Home";
+import HomeMutu from "./pages/DashboardMutu/HomeMutu";
 import BasicTables from "./pages/Tables/BasicTables";
 import FormElements from "./pages/Forms/FormElements";
 import UserProfiles from "./pages/UserProfiles";
@@ -18,20 +17,23 @@ export default function App() {
       <Routes>
         {/* Layout utama */}
         <Route element={<AppLayout />}>
-          {/* Dashboard */}
-          <Route index path="/" element={<Home />} />
+          {/* Dashboard Unit*/}
+          <Route index path="/dashboard-unit" element={<Home />} />
+
+          {/* Dashboard Mutu*/}
+          <Route index path="/dashboard-mutu" element={<HomeMutu />} />
 
           {/* Data Kejadian */}
-          <Route path="/basic-tables" element={<BasicTables />} />
+          <Route path="/data-kejadian" element={<BasicTables />} />
 
           {/* Klasifikasi AI */}
-          <Route path="/form-elements" element={<FormElements />} />
+          <Route path="/klasifikasi-ai" element={<FormElements />} />
 
           {/* User Profile */}
           <Route path="/profile" element={<UserProfiles />} />
           
         </Route>
-        <Route path="/signin" element={<SignIn />} />
+        <Route path="/" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
 
         {/* Fallback Route */}

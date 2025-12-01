@@ -9,7 +9,7 @@ import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
 
-export default function RiskGradingPieChart() {
+export default function SKPDistributionPieChart() {
   const [isOpen, setIsOpen] = useState(false);
   const toggleDropdown = () => setIsOpen(!isOpen);
   const closeDropdown = () => setIsOpen(false);
@@ -21,81 +21,83 @@ export default function RiskGradingPieChart() {
     closeModal: closeDescModal,
   } = useModal();
 
-  // Modal Download
+  // Modal Download Data
   const {
     isOpen: isDownloadOpen,
     openModal: openDownloadModal,
     closeModal: closeDownloadModal,
   } = useModal();
 
-  // Tanggal filter
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Data grading risiko
+  // =========================
+  // DATA SKP DISTRIBUSI
+  // =========================
   const data = [
-    { label: "Merah", value: 25, color: "#EF4444", date: "2025-01-12" },
-    { label: "Kuning", value: 35, color: "#FACC15", date: "2025-01-15" },
-    { label: "Hijau", value: 30, color: "#22C55E", date: "2025-01-18" },
-    { label: "Biru", value: 10, color: "#3B82F6", date: "2025-01-19" },
+    { label: "SKP 1", value: 30, color: "#3B82F6", date: "2025-01-10" },
+    { label: "SKP 2", value: 25, color: "#F59E0B", date: "2025-01-11" },
+    { label: "SKP 3", value: 20, color: "#EF4444", date: "2025-01-12" },
+    { label: "SKP 4", value: 10, color: "#10B981", date: "2025-01-13" },
+    { label: "SKP 5", value: 10, color: "#8B5CF6", date: "2025-01-14" },
+    { label: "SKP 6", value: 5, color: "#EAB308", date: "2025-01-15" },
   ];
+
   const total = data.reduce((sum, d) => sum + d.value, 0);
 
-  // Filter berdasarkan rentang tanggal
   const filteredData = data.filter((item) => {
     if (startDate && item.date < startDate) return false;
     if (endDate && item.date > endDate) return false;
     return true;
   });
 
-  // === Download CSV ===
+  // =========================
+  // DOWNLOAD CSV
+  // =========================
   const downloadCSV = () => {
-    const rows = [
-      ["Label", "Value", "Date"],
-      ...filteredData.map((d) => [d.label, d.value, d.date]),
-    ];
+    const rows = [["SKP", "Jumlah", "Tanggal"]];
+    filteredData.forEach((d) => rows.push([d.label, d.value, d.date]));
 
     const csv =
-      "data:text/csv;charset=utf-8," + rows.map((r) => r.join(",")).join("\n");
+      "data:text/csv;charset=utf-8," + rows.map((e) => e.join(",")).join("\n");
 
     const link = document.createElement("a");
     link.href = encodeURI(csv);
-    link.download = "grading_risiko.csv";
+    link.download = "skp_distribution.csv";
     link.click();
   };
 
-  // === Download Excel (XLSX) ===
+  // =========================
+  // DOWNLOAD EXCEL
+  // =========================
   const downloadExcel = async () => {
-    const rows = [
-      ["Label", "Value", "Date"],
-      ...filteredData.map((d) => [d.label, d.value, d.date]),
-    ];
+    const rows = [["SKP", "Jumlah", "Tanggal"]];
+    filteredData.forEach((d) => rows.push([d.label, d.value, d.date]));
 
-    // Dynamic import (tidak mengganggu bundle)
     const XLSX = await import("xlsx");
 
     const worksheet = XLSX.utils.aoa_to_sheet(rows);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Grading Risiko");
-
-    XLSX.writeFile(workbook, "grading_risiko.xlsx");
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Distribusi SKP");
+    XLSX.writeFile(workbook, "skp_distribution.xlsx");
   };
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-white/[0.03]">
-      {/* === Header === */}
+
+      {/* HEADER */}
       <div className="px-5 pt-5 bg-white shadow-default rounded-2xl pb-11 dark:bg-gray-900 sm:px-6 sm:pt-6">
         <div className="flex justify-between">
           <div>
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-              Distribusi Grading Risiko
+              Distribusi Sasaran Keselamatan Pasien
             </h3>
             <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
-              Proporsi tingkat risiko insiden keselamatan pasien
+              Proporsi kategori Sasaran Keselamatan Pasien (SKP)
             </p>
           </div>
 
-          {/* Dropdown */}
+          {/* DROPDOWN */}
           <div className="relative inline-block">
             <button className="dropdown-toggle" onClick={toggleDropdown}>
               <MoreDotIcon className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 size-6" />
@@ -127,7 +129,7 @@ export default function RiskGradingPieChart() {
           </div>
         </div>
 
-        {/* === CHART === */}
+        {/* PIE CHART */}
         <div className="relative flex justify-center items-center mt-2">
           <PieChart
             width={230}
@@ -150,7 +152,7 @@ export default function RiskGradingPieChart() {
         </div>
       </div>
 
-      {/* === LEGEND === */}
+      {/* LEGEND */}
       <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-0 px-6 py-2 sm:gap-8 sm:py-5">
         {data.map((item) => {
           const pct = ((item.value / total) * 100).toFixed(1);
@@ -172,18 +174,21 @@ export default function RiskGradingPieChart() {
       </div>
 
       {/* ====================== */}
-      {/* === MODAL DESKRIPSI === */}
+      {/* MODAL — DESKRIPSI     */}
       {/* ====================== */}
       <Modal isOpen={isDescOpen} onClose={closeDescModal} className="max-w-[600px] m-4">
         <div className="rounded-3xl bg-white p-6 dark:bg-gray-900">
           <h4 className="text-xl font-semibold dark:text-white/90 mb-3">
-            Deskripsi Grading Risiko
+            Deskripsi Sasaran Keselamatan Pasien
           </h4>
+
           <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum
-            interdum libero id nulla tempor, eget vulputate erat fermentum.
-            Integer bibendum quam vel mi sagittis.
+            Sasaran Keselamatan Pasien (SKP) terdiri atas enam tujuan utama:
+            identifikasi pasien, komunikasi efektif, keamanan obat,
+            keselamatan prosedur operasi, pencegahan infeksi, dan pencegahan jatuh.
+            Grafik ini menampilkan proporsi masing-masing SKP berdasarkan jumlah insiden.
           </p>
+
           <div className="flex justify-end mt-6">
             <Button size="sm" variant="outline" onClick={closeDescModal}>
               Tutup
@@ -193,15 +198,15 @@ export default function RiskGradingPieChart() {
       </Modal>
 
       {/* =========================== */}
-      {/* === MODAL DOWNLOAD DATA === */}
+      {/* MODAL — DOWNLOAD DATA       */}
       {/* =========================== */}
       <Modal isOpen={isDownloadOpen} onClose={closeDownloadModal} className="max-w-[600px] m-4">
         <div className="rounded-3xl bg-white p-6 dark:bg-gray-900">
           <h4 className="text-xl font-semibold dark:text-white/90 mb-4">
-            Download Data Grading Risiko
+            Download Data SKP
           </h4>
 
-          {/* Filter tanggal */}
+          {/* Input tanggal */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <Label>Tanggal Awal</Label>
@@ -242,11 +247,7 @@ export default function RiskGradingPieChart() {
           </div>
 
           <div className="flex justify-end gap-3 mt-6">
-            <Button size="sm" variant="outline" onClick={closeDownloadModal}>
-              Batal
-            </Button>
-
-            <Button size="sm" onClick={downloadCSV}>
+            <Button size="sm" variant="outline" onClick={downloadCSV}>
               Download CSV
             </Button>
 

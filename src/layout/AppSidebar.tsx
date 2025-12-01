@@ -5,7 +5,6 @@ import {
   GridIcon,
   TableIcon,
   ListIcon,
-  UserCircleIcon,
   HorizontaLDots,
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
@@ -19,18 +18,23 @@ type NavItem = {
 const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
-    name: "Dashboard",
-    path: "/",
+    name: "Dashboard Unit",
+    path: "/dashboard-unit",
+  },
+  {
+    icon: <GridIcon />,
+    name: "Dashboard Mutu",
+    path: "/dashboard-mutu",
   },
   {
     name: "Data Kejadian",
     icon: <TableIcon />,
-    path: "/basic-tables",
+    path: "/data-kejadian",
   },
   {
     name: "Klasifikasi AI",
     icon: <ListIcon />,
-    path: "/form-elements",
+    path: "/klasifikasi-ai",
   },
 ];
 
