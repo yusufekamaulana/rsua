@@ -46,7 +46,8 @@ export default function IncidentTypePieChart() {
 
   const downloadCSV = () => {
     const rows = [["Label", "Jumlah", "Tanggal"]];
-    filteredData.forEach((d) => rows.push([d.label, d.value, d.date]));
+    filteredData.forEach((d) => rows.push([d.label, String(d.value), d.date]));
+
 
     const csv =
       "data:text/csv;charset=utf-8," + rows.map((e) => e.join(",")).join("\n");
@@ -59,7 +60,7 @@ export default function IncidentTypePieChart() {
 
   const downloadExcel = async () => {
     const rows = [["Label", "Jumlah", "Tanggal"]];
-    filteredData.forEach((d) => rows.push([d.label, d.value, d.date]));
+    filteredData.forEach((d) => rows.push([d.label, String(d.value), d.date]));
 
     const XLSX = await import("xlsx");
 

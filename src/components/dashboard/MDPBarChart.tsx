@@ -46,7 +46,7 @@ export default function MDPBarChart() {
 
   const downloadCSV = () => {
     const rows = [["Kode", "Deskripsi", "Jumlah", "Tanggal"]];
-    filteredData.forEach((d) => rows.push([d.code, d.label, d.value, d.date]));
+    filteredData.forEach((d) => rows.push([d.label, String(d.value), d.date]))
 
     const csv = "data:text/csv;charset=utf-8," + rows.map((r) => r.join(",")).join("\n");
     const a = document.createElement("a");
@@ -59,7 +59,7 @@ export default function MDPBarChart() {
     const XLSX = await import("xlsx");
 
     const rows = [["Kode", "Deskripsi", "Jumlah", "Tanggal"]];
-    filteredData.forEach((d) => rows.push([d.code, d.label, d.value, d.date]));
+    filteredData.forEach((d) => rows.push([d.label, String(d.value), d.date]));
 
     const ws = XLSX.utils.aoa_to_sheet(rows);
     const wb = XLSX.utils.book_new();

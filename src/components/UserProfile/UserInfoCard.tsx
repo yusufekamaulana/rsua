@@ -3,12 +3,21 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
+import { useState } from "react";
 
 export default function UserInfoCard() {
   const { isOpen, openModal, closeModal } = useModal();
 
+  // === STATE untuk form (wajib untuk controlled input) ===
+  const [firstName, setFirstName] = useState("John");
+  const [lastName, setLastName] = useState("Doe");
+  const [email, setEmail] = useState("perawat@rs.unair.ac.id");
+  const [phone, setPhone] = useState("+62898 3632 3982");
+  const [position, setPosition] = useState("Perawat");
+
   const handleSave = () => {
     console.log("Saving changes...");
+    console.table({ firstName, lastName, email, phone, position });
     closeModal();
   };
 
@@ -22,48 +31,32 @@ export default function UserInfoCard() {
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
             <div>
-              <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
-                Nama Depan
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Johanes
-              </p>
+              <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">Nama Depan</p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">Johanes</p>
             </div>
 
             <div>
-              <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
-                Nama Belakang
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Deo
-              </p>
+              <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">Nama Belakang</p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">Deo</p>
             </div>
 
             <div>
-              <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
-                Email
-              </p>
+              <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">Email</p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
                 mutu@rs.unair.ac.id
               </p>
             </div>
 
             <div>
-              <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
-                Telepon
-              </p>
+              <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">Telepon</p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
                 +62898 3632 3982
               </p>
             </div>
 
             <div>
-              <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">
-                Jabatan
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Mutu
-              </p>
+              <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">Jabatan</p>
+              <p className="text-sm font-medium text-gray-800 dark:text-white/90">Mutu</p>
             </div>
           </div>
         </div>
@@ -103,27 +96,47 @@ export default function UserInfoCard() {
             <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
               <div>
                 <Label>Nama Depan</Label>
-                <Input type="text" defaultValue="John" />
+                <Input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
               </div>
 
               <div>
                 <Label>Nama Belakang</Label>
-                <Input type="text" defaultValue="Doe" />
+                <Input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                />
               </div>
 
               <div>
                 <Label>Email</Label>
-                <Input type="email" defaultValue="perawat@rs.unair.ac.id" />
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
               </div>
 
               <div>
                 <Label>Telepon</Label>
-                <Input type="text" defaultValue="+62898 3632 3982" />
+                <Input
+                  type="text"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
               </div>
 
               <div className="col-span-2">
                 <Label>Jabatan</Label>
-                <Input type="text" defaultValue="Perawat" />
+                <Input
+                  type="text"
+                  value={position}
+                  onChange={(e) => setPosition(e.target.value)}
+                />
               </div>
             </div>
 

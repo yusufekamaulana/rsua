@@ -9,9 +9,9 @@ export default function KPI() {
   const KPCS = 15;
   const SENTINEL = 4;
 
-  const currentRiskLevel: "rendah" | "moderat" | "tinggi" | "ekstrem" = "ekstrem";
+  const currentRiskLevel: "rendah" | "moderat" | "tinggi" | "ekstrem" = "moderat";
 
-  let variant: "success" | "warning" | "error" | "info" = "info";
+  let variant: "success" | "warning" | "error" | "info";
   let title = "";
   let message = "";
 
@@ -21,16 +21,19 @@ export default function KPI() {
       title = "Risiko Rendah";
       message = "Kondisi saat ini berada pada tingkat risiko rendah.";
       break;
+
     case "moderat":
       variant = "success";
       title = "Risiko Moderat";
       message = "Kondisi saat ini berada pada tingkat risiko moderat.";
       break;
+
     case "tinggi":
       variant = "warning";
       title = "Risiko Tinggi";
       message = "Kondisi saat ini berada pada tingkat risiko tinggi.";
       break;
+
     case "ekstrem":
       variant = "error";
       title = "Risiko Ekstrem";
@@ -45,7 +48,7 @@ export default function KPI() {
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-4">
         <div className="mt-4 space-y-2">
           <h3 className="text-center text-lg font-semibold text-gray-800 dark:text-white/90">
-              Total Insiden
+            Total Insiden
           </h3>
           <h4 className="text-3xl font-bold text-center text-gray-800 dark:text-white/90">
             {totalIncidents}
@@ -56,7 +59,7 @@ export default function KPI() {
       {/* === JENIS KEJADIAN === */}
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-4">
         <h3 className="text-center text-lg font-semibold text-gray-800 dark:text-white/90">
-            Jenis Kejadian
+          Jenis Kejadian
         </h3>
 
         <div className="flex flex-wrap items-center justify-center gap-5 px-6 py-3.5 sm:gap-8 sm:py-5">

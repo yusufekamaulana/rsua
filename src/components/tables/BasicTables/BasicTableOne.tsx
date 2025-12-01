@@ -88,17 +88,19 @@ const getBadgeColor = (grading: string) => {
     case "biru":
       return "info";
     default:
-      return "secondary";
+      return "info";  // fallback aman
   }
 };
+
 
 // Note color helper
 const getNoteColor = (ket: string) => {
   if (ket === "Klasifikasi AI") return "info";
   if (ket === "Revisi Unit") return "warning";
   if (ket === "Revisi Mutu") return "error";
-  return "secondary";
+  return "info";  // fallback aman
 };
+
 
 export default function BasicTableOne() {
   const [incidents, setIncidents] = useState<Incident[]>(initialIncidents);

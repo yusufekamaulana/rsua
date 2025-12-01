@@ -56,7 +56,7 @@ export default function SKPDistributionPieChart() {
   // =========================
   const downloadCSV = () => {
     const rows = [["SKP", "Jumlah", "Tanggal"]];
-    filteredData.forEach((d) => rows.push([d.label, d.value, d.date]));
+    filteredData.forEach((d) => rows.push([d.label, String(d.value), d.date]));
 
     const csv =
       "data:text/csv;charset=utf-8," + rows.map((e) => e.join(",")).join("\n");
@@ -72,7 +72,7 @@ export default function SKPDistributionPieChart() {
   // =========================
   const downloadExcel = async () => {
     const rows = [["SKP", "Jumlah", "Tanggal"]];
-    filteredData.forEach((d) => rows.push([d.label, d.value, d.date]));
+    filteredData.forEach((d) => rows.push([d.label, String(d.value), d.date]));
 
     const XLSX = await import("xlsx");
 
